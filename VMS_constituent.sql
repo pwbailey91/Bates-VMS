@@ -30,7 +30,7 @@ group by con.constituent_key
 ),
 affil as (--Pulls constituent affiliations into single row
 select con.constituent_key,
-       max(case when dc.donor_code_sd in ('T','TP') then 1 else 0 end) as trustees,
+       max(case when dc.donor_code_sd in ('T','TS') then 1 else 0 end) as trustees,
        listagg(dc.donor_code_ld,';') within group (order by dc.donor_code_sd) as affiliations
 from adv_constituent_d con
      inner join adv_donor_group_b dg on con.donor_group_key=dg.donor_group_key

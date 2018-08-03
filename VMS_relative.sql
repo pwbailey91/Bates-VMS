@@ -1,4 +1,4 @@
-/*Query to generate the relatives file for the VMS.*/
+/*Query to generate the relatives file for the VMS. Gets all children and spouses that went to Bates.*/
 with last_gift as (--Get fiscal year of most recent household gift, used in filtering parents to include
 select hhg.household_key, max(hhg.fiscal_year) as fiscal_year
 from adv_hh_giving_f hhg
