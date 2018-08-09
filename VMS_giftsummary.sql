@@ -50,7 +50,7 @@ where (con.primary_donor_code='A'
       or (con.primary_donor_code='P' and ((case con.parent_scy when 'n/a' then '0' else con.parent_scy end)>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
       and pld.soft_credit_ind='N'
       and pld.anon_ind='N'
-      --and pld.pledge_status_sd='A'
+      and pld.pledge_status_sd='A'
       and pin.install_fiscal_year between rv.var_value-5 and rv.var_value
       and (trustee_giving.constituent_key is null or (cam.campaign_type_sd='AF' and cam.campaign_sd like 'B_F%'))--Only BF for trustees
 group by con.cons_id, pin.install_fiscal_year
