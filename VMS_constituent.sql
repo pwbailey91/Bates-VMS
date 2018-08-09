@@ -1,4 +1,5 @@
-/*Query to generate the constituent file for the VMS. Pulls all alumni, current parents, parents from the past 3 class years, and parents who gave in the last year*/
+/*Query to generate the constituent file for the VMS.
+Pulls all alumni from past 70 class years, current parents, parents from the past 3 class years, and parents who gave in the last year*/
 
 with last_gift as (--Most recent gift per household with gift date and designation
 select hhg.household_key,
@@ -113,7 +114,7 @@ from adv_constituent_d con
      left outer join aprehis apr on con.pidm=apr.APREHIS_PIDM and apr.APREHIS_PRIMARY_IND='Y' and apr.APREHIS_TO_DATE is null
      left outer join atvsicc atv on apr.APREHIS_SICC_CODE=atv.ATVSICC_CODE
      left outer join adv_constituent_d emp on apr.APREHIS_EMPR_PIDM=emp.pidm
-where (con.primary_donor_code='A' 
+where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       or (con.primary_donor_code='P' and ((case con.parent_scy when 'n/a' then '0' else con.parent_scy end)>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
       --or (con.primary_donor_code='P' and exclusions.no_n25=0 and exclusions.no_solc_parent<3)) 
       and db.fiscal_year=rv.var_value

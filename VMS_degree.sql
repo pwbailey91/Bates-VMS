@@ -17,7 +17,7 @@ left outer join apramaj maj on deg.apradeg_pidm=maj.apramaj_pidm and deg.apradeg
 left outer join stvmajr stv on maj.apramaj_majr_code=stv.stvmajr_code
 left outer join last_gift on con.household_key=last_gift.household_key
 where deg.apradeg_sbgi_code='003076' --Bates
-and (con.primary_donor_code='A' 
+and ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       or (con.primary_donor_code='P' and ((case con.parent_scy when 'n/a' then '0' else con.parent_scy end)>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
 and deg.apradeg_degc_code is not null
 group by con.cons_id, deg.apradeg_degc_code, deg.apradeg_date

@@ -17,7 +17,7 @@ from adv_constituent_d con
      inner join stvactp actp on actc.stvactc_actp_code=actp.stvactp_code
      left outer join apracyr acyr on con.pidm=acyr.apracyr_pidm and acty.apracty_actc_code=acyr.apracyr_actc_code
      left outer join last_gift on con.household_key=last_gift.household_key
-where (con.primary_donor_code='A' 
+where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       or (con.primary_donor_code='P' and ((case con.parent_scy when 'n/a' then '0' else con.parent_scy end)>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
       and actp.STVACTP_CODE in ('SOORG','SPRTS','ALUMN','ATHLE','PARNT')
       and actc.STVACTC_CODE <> 'DTYP'

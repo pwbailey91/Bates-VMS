@@ -27,7 +27,7 @@ from adv_constituent_d con
      inner join adv_campaign_d cam on cr.campaign_key=cam.campaign_key
      left outer join last_gift on con.household_key=last_gift.household_key
      left outer join trustee_giving on con.constituent_key=trustee_giving.constituent_key
-where (con.primary_donor_code='A' 
+where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       or (con.primary_donor_code='P' and ((case con.parent_scy when 'n/a' then '0' else con.parent_scy end)>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
       and gd.soft_credit_ind='N'
       and gd.anon_ind='N'
@@ -46,7 +46,7 @@ from adv_constituent_d con
      inner join adv_campaign_d cam on pin.campaign_key=cam.campaign_key
      left outer join last_gift on con.household_key=last_gift.household_key
      left outer join trustee_giving on con.constituent_key=trustee_giving.constituent_key
-where (con.primary_donor_code='A' 
+where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       or (con.primary_donor_code='P' and ((case con.parent_scy when 'n/a' then '0' else con.parent_scy end)>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
       and pld.soft_credit_ind='N'
       and pld.anon_ind='N'
