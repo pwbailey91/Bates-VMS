@@ -28,11 +28,11 @@ from adv_constituent_d con
      left outer join last_gift on con.household_key=last_gift.household_key
      left outer join trustee_giving on con.constituent_key=trustee_giving.constituent_key
 where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
-      or (con.primary_donor_code='P' and ((case con.parent_scy when 'n/a' then '0' else con.parent_scy end)>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
+      or (con.primary_donor_code='P' and (replace(con.parent_scy,'n/a','0')>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
       and gd.soft_credit_ind='N'
       and gd.anon_ind='N'
       and cr.fiscal_year between rv.var_value-5 and rv.var_value
-      and (trustee_giving.constituent_key is null or (cam.campaign_type_sd='AF' and cam.campaign_sd like 'B_F%'))--Only BF for trustees
+      and (trustee_giving.constituent_key is null or cam.campaign_type_sd='AF')--Only BF for trustees
 group by con.cons_id, cr.fiscal_year
 union all
 select con.cons_id                                        as "Constituent_Externalid",
@@ -47,12 +47,12 @@ from adv_constituent_d con
      left outer join last_gift on con.household_key=last_gift.household_key
      left outer join trustee_giving on con.constituent_key=trustee_giving.constituent_key
 where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
-      or (con.primary_donor_code='P' and ((case con.parent_scy when 'n/a' then '0' else con.parent_scy end)>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
+      or (con.primary_donor_code='P' and (replace(con.parent_scy,'n/a','0')>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
       and pld.soft_credit_ind='N'
       and pld.anon_ind='N'
       and pld.pledge_status_sd='A'
       and pin.install_fiscal_year between rv.var_value-5 and rv.var_value
-      and (trustee_giving.constituent_key is null or (cam.campaign_type_sd='AF' and cam.campaign_sd like 'B_F%'))--Only BF for trustees
+      and (trustee_giving.constituent_key is null or cam.campaign_type_sd='AF')--Only BF for trustees
 group by con.cons_id, pin.install_fiscal_year
 having sum(pin.expected_amt-pin.install_amt_paid)>0
 order by "Constituent_Externalid", "GiftSummary_Year", "GiftSummary_Type"

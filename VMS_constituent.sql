@@ -51,17 +51,17 @@ select con.cons_id                                                              
                                         || ' ' || con.college_last_name) end                      as "Constituent_FormerName",
        con.gender                                                                                 as "Constituent_Gender",
        con.marital_desc                                                                           as "Constituent_MaritalStatus",
-       con.scy                                                                                    as "Constituent_PrefClassYear",
+       replace(con.scy,'n/a')                                                                     as "Constituent_PrefClassYear",
        affil.affiliations                                                                         as "Constituent_Affiliation",
-       case ci.pref_email when 'n/a' then null else ci.pref_email end                             as "Constituent_Email",
-       case ci.home_phone when 'n/a' then null else ci.home_phone end                             as "Constituent_HomePhone",
-       case ci.pref_mail_street1 when 'n/a' then null else ci.pref_mail_street1 end               as "Constituent_AddressStreet1",
-       case ci.pref_mail_street2 when 'n/a' then null else ci.pref_mail_street2 end               as "Constituent_AddressStreet2",
-       case ci.pref_mail_street3 when 'n/a' then null else ci.pref_mail_street3 end               as "Constituent_AddressStreet3",
-       case ci.pref_mail_city when 'n/a' then null else ci.pref_mail_city end                     as "Constituent_AddressCity",
-       case ci.pref_mail_state_code when 'n/a' then null else ci.pref_mail_state_code end         as "Constituent_AddressState",
-       case ci.pref_mail_zip when 'n/a' then null else ci.pref_mail_zip end                       as "Constituent_AddressZip",
-       case ci.pref_mail_nation_desc when 'n/a' then null else ci.pref_mail_nation_desc end       as "Constituent_AddressCountry",
+       replace(ci.pref_email,'n/a')                                                               as "Constituent_Email",
+       replace(ci.home_phone,'n/a')                                                               as "Constituent_HomePhone",
+       replace(ci.pref_mail_street1,'n/a')                                                        as "Constituent_AddressStreet1",
+       replace(ci.pref_mail_street2,'n/a')                                                        as "Constituent_AddressStreet2",
+       replace(ci.pref_mail_street3,'n/a')                                                        as "Constituent_AddressStreet3",
+       replace(ci.pref_mail_city,'n/a')                                                           as "Constituent_AddressCity",
+       replace(ci.pref_mail_state_code,'n/a')                                                     as "Constituent_AddressState",
+       replace(ci.pref_mail_zip,'n/a')                                                            as "Constituent_AddressZip",
+       replace(ci.pref_mail_nation_desc,'n/a')                                                    as "Constituent_AddressCountry",
        case when (affil.trustees=1 or afr.afrctyp_sol_org='TP') then null 
                  else to_char(last_gift.calendar_date,'MM/DD/YYYY') end                           as "Constituent_LastGiftDate",
        case when (affil.trustees=1 or afr.afrctyp_sol_org='TP') then null 
@@ -80,8 +80,7 @@ select con.cons_id                                                              
        'TRUE'                                                                                     as "EditSelectableStatus",
        null                                                                                       as "Constituent_TeamManager",
        case con.deceased_ind when 'Y' then 'TRUE' else 'FALSE' end                                as "Constituent_Deceased",
-       case exclusions.exclusion_string when 'none' then null 
-            else exclusions.exclusion_string end                                                  as "Constituent_Restrictions",
+       replace(exclusions.exclusion_string,'none')                                                as "Constituent_Restrictions",
        case afr.afrctyp_sol_org when 'TP' then 'Top Prospects'
                                 when 'PA' then 'President''s Associates'  
                                 when 'MDS' then 'Mount David Society Members'
@@ -89,15 +88,15 @@ select con.cons_id                                                              
                                 when 'BFP' then 'Bates Fund Pipeline'
                                 when 'GG' then 'General Giving'
                                 when 'PAR' then 'Parents' end                                     as "Constituent_Segments",
-       case sps.cons_id when 'n/a' then null else sps.cons_id end                                 as "Spouse_Externalid",
-       case hhb.spouse_name when 'n/a' then null else hhb.spouse_name end                         as "Spouse_Name",
-       case sps.scy when 'n/a' then null else sps.scy end                                         as "Spouse_ClassYear",
+       replace(sps.cons_id,'n/a')                                                                 as "Spouse_Externalid",
+       replace(hhb.spouse_name,'n/a')                                                             as "Spouse_Name",
+       replace(sps.scy,'n/a')                                                                     as "Spouse_ClassYear",
        apr.APREHIS_EMPL_POSITION                                                                  as "Business_JobTitle",
        coalesce(emp.last_name,apr.APREHIS_EMPR_NAME)                                              as "Business_Employer",
        atv.ATVSICC_DESC                                                                           as "Business_Industry",
        case emp.is_mg_company when 'Y' then 'TRUE' end                                            as "Business_EmployerMatch",
-       case ci.work_city when 'n/a' then null else ci.work_city end                               as "Business_AddressCity",
-       case ci.work_state_code when 'n/a' then null else ci.work_state_code end                   as "Business_AddressState",
+       replace(ci.work_city,'n/a')                                                                as "Business_AddressCity",
+       replace(ci.work_state_code,'n/a')                                                          as "Business_AddressState",
        case db.bf_consec_yrs_giving when 0 then db.lyr_bf_consec_yrs_giving 
                                     else db.bf_consec_yrs_giving end                              as "ConsecGivingYearsBF"
 from adv_constituent_d con
@@ -115,6 +114,6 @@ from adv_constituent_d con
      left outer join atvsicc atv on apr.APREHIS_SICC_CODE=atv.ATVSICC_CODE
      left outer join adv_constituent_d emp on apr.APREHIS_EMPR_PIDM=emp.pidm
 where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
-      or (con.primary_donor_code='P' and ((case con.parent_scy when 'n/a' then '0' else con.parent_scy end)>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
+      or (con.primary_donor_code='P' and (replace(con.parent_scy,'n/a','0')>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
       --or (con.primary_donor_code='P' and exclusions.no_n25=0 and exclusions.no_solc_parent<3)) 
       and db.fiscal_year=rv.var_value
