@@ -22,11 +22,12 @@ group by hhg.household_key,cal.calendar_date,cal.fiscal_year,des.designation_ld
 exclusions as (--Pulls all exclusion codes into single row per constituent
 select con.constituent_key,
        max(case when exc.exclusion_code_sd in ('NO','N25') then 1 else 0 end) as no_n25,
-       --sum(case when exc.exclusion_code_sd in ('NS','NSE','NP') then 1 else 0 end) as no_solc_parent,
-       listagg(exc.exclusion_code_ld,';') within group (order by exc.exclusion_code_key) as exclusion_string
+       sum(case when exc.exclusion_code_sd in ('NS','NSE','NP') then 1 else 0 end) as no_solc_parent,
+       listagg(case when exc.exclusion_code_sd='N25' then null else exc.exclusion_code_ld end,';') within group (order by exc.exclusion_code_key) as exclusion_string
 from adv_constituent_d con
      inner join adv_exclusion_group_b exg on con.exclusion_group_key=exg.exclusion_group_key
      inner join adv_exclusion_codes_d exc on exg.exclusion_code_key=exc.exclusion_code_key
+where exc.exclusion_code_sd in ('DM','DME','NS','NSE','NP','NT','NAS','NBA','NO','NPA','NPM','REF','UNS','N25')
 group by con.constituent_key
 ),
 affil as (--Pulls constituent affiliations into single row
@@ -47,8 +48,11 @@ select con.cons_id                                                              
        con.suffix                                                                                 as "Constituent_Suffix",
        con.pref_first_name                                                                        as "Preferred_FirstName",
        case when con.college_last_name is null then null 
-            else(con.college_first_name || ' ' || con.college_middle_name 
-                                        || ' ' || con.college_last_name) end                      as "Constituent_FormerName",
+            when con.college_first_name=con.first_name
+                 and con.college_middle_name=con.middle_name
+                 and con.college_last_name=con.last_name then null
+            else replace(con.college_first_name || ' ' || con.college_middle_name 
+                                        || ' ' || con.college_last_name,'  ',' ') end             as "Constituent_FormerName",
        con.gender                                                                                 as "Constituent_Gender",
        con.marital_desc                                                                           as "Constituent_MaritalStatus",
        replace(con.scy,'n/a')                                                                     as "Constituent_PrefClassYear",
@@ -76,6 +80,7 @@ select con.cons_id                                                              
             when afr.afrctyp_sol_org='TP' then 'FALSE' --Top Prospect
             when con.deceased_ind='Y' then 'FALSE' --Deceased
             when exclusions.no_n25=1 then 'FALSE' --No contact (NO) / Not solicitable (N25)
+            when exclusions.no_solc_parent=3 then 'FALSE' --All 3 of NS, NSE, and NP exclusions
             else 'TRUE' end                                                                       as "Constituent_Selectable", 
        'TRUE'                                                                                     as "EditSelectableStatus",
        null                                                                                       as "Constituent_TeamManager",
