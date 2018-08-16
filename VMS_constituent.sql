@@ -1,23 +1,23 @@
 /*Query to generate the constituent file for the VMS.
 Pulls all alumni from past 70 class years, current parents, parents from the past 3 class years, and parents who gave in the last year*/
 
-with last_gift as (--Most recent gift per household with gift date and designation
-select hhg.household_key,
+with last_gift as (--Most recent gift per constituent with gift date and designation
+select cr.constituent_key_credit,
        cal.calendar_date,
        cal.fiscal_year,
        des.designation_ld,
-       sum(hhg.credit_amount) as gift_amount
-from (select hhg.*, 
-      max(hhg.date_key_gift) over (partition by hhg.household_key) as max_date,
-      max(hhg.designation_key) over (partition by hhg.household_key,hhg.date_key_gift) as max_desg
-      from adv_hh_giving_f hhg
-      inner join adv_gift_description_d gd on hhg.gift_description_key=gd.gift_description_key
-      where gd.soft_credit_ind='N' and gd.anon_ind='N') hhg 
-     inner join adv_calendar_dv cal on hhg.date_key_gift=cal.date_key
-     inner join adv_designation_d des on hhg.designation_key=des.designation_key
-where hhg.date_key_gift=hhg.max_date
-      and hhg.designation_key=hhg.max_desg
-group by hhg.household_key,cal.calendar_date,cal.fiscal_year,des.designation_ld
+       sum(cr.credit_amount) as gift_amount
+from (select cr.*, 
+      max(cr.date_key_gift) over (partition by cr.constituent_key_credit) as max_date,
+      max(cr.designation_key) over (partition by cr.constituent_key_credit,cr.date_key_gift) as max_desg
+      from adv_credit_f cr
+      inner join adv_gift_description_d gd on cr.gift_description_key=gd.gift_description_key
+      where gd.soft_credit_ind='N' and gd.anon_ind='N') cr 
+     inner join adv_calendar_dv cal on cr.date_key_gift=cal.date_key
+     inner join adv_designation_d des on cr.designation_key=des.designation_key
+where cr.date_key_gift=cr.max_date
+      and cr.designation_key=cr.max_desg
+group by cr.constituent_key_credit,cal.calendar_date,cal.fiscal_year,des.designation_ld
 ), 
 exclusions as (--Pulls all exclusion codes into single row per constituent
 select con.constituent_key,
@@ -113,7 +113,7 @@ from adv_constituent_d con
      inner join adv_household_b hhb on con.household_key=hhb.household_key and con.constituent_key=hhb.cons_key_sps1
      inner join adv_constituent_d sps on hhb.cons_key_sps2=sps.constituent_key
      inner join affil on con.constituent_key=affil.constituent_key
-     left outer join last_gift on con.household_key=last_gift.household_key
+     left outer join last_gift on con.constituent_key=last_gift.constituent_key_credit
      left outer join afrctyp afr on con.pidm=afr.afrctyp_constituent_pidm and afr.afrctyp_dcyr_code=rv.var_value
      left outer join aprehis apr on con.pidm=apr.APREHIS_PIDM and apr.APREHIS_PRIMARY_IND='Y' and apr.APREHIS_TO_DATE is null
      left outer join atvsicc atv on apr.APREHIS_SICC_CODE=atv.ATVSICC_CODE
