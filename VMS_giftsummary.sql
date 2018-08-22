@@ -11,7 +11,7 @@ select distinct con.constituent_key
 from adv_constituent_d con
      inner join adv_donor_group_b dg on con.donor_group_key=dg.donor_group_key
      inner join adv_donor_codes_d dc on dg.donor_code_key=dc.donor_code_key
-     inner join adv_reportvars_d rv on rv.var_name='FY_RPT'
+     inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
      left outer join afrctyp afr on con.pidm=afr.afrctyp_pidm and afr.afrctyp_dcyr_code=rv.var_value
 where dc.donor_code_sd in ('T','TS')
       or afr.AFRCTYP_SOL_ORG='TP'
@@ -23,7 +23,7 @@ select con.cons_id                                        as "Constituent_Extern
 from adv_constituent_d con
      inner join adv_credit_f cr on con.household_key=cr.household_key
      inner join adv_gift_description_d gd on cr.gift_description_key=gd.gift_description_key
-     inner join adv_reportvars_d rv on rv.var_name='FY_RPT'
+     inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
      inner join adv_campaign_d cam on cr.campaign_key=cam.campaign_key
      left outer join last_gift on con.constituent_key=last_gift.constituent_key_credit
      left outer join trustee_giving on con.constituent_key=trustee_giving.constituent_key
@@ -42,7 +42,7 @@ select con.cons_id                                        as "Constituent_Extern
 from adv_constituent_d con
      inner join adv_pledge_install_f pin on con.constituent_key=pin.constituent_key_pledger
      inner join adv_pldg_description_d pld on pin.pledge_description_key=pld.pldg_description_key
-     inner join adv_reportvars_d rv on rv.var_name='FY_RPT'
+     inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
      inner join adv_campaign_d cam on pin.campaign_key=cam.campaign_key
      left outer join last_gift on con.constituent_key=last_gift.constituent_key_credit
      left outer join trustee_giving on con.constituent_key=trustee_giving.constituent_key

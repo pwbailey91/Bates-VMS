@@ -33,7 +33,7 @@ from adv_constituent_d con
      inner join adv_designation_d des on cr.designation_key=des.designation_key
      inner join adv_campaign_d cam on cr.campaign_key=cam.campaign_key
      inner join adv_calendar_dv cal on cr.date_key_gift=cal.date_key
-     inner join adv_reportvars_d rv on rv.var_name='FY_RPT'
+     inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
      left outer join last_gift on con.constituent_key=last_gift.constituent_key_credit
      left outer join trustee_giving on con.constituent_key=trustee_giving.constituent_key
 where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))

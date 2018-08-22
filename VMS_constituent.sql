@@ -108,7 +108,7 @@ from adv_constituent_d con
      inner join adv_donor_codes_d pdc on con.primary_donor_code=pdc.donor_code_sd
      inner join adv_contact_info_d ci on con.contact_info_key=ci.contact_info_key
      inner join adv_donor_behavior_ps db on con.constituent_key=db.constituent_key
-     inner join adv_reportvars_d rv on rv.var_name='FY_RPT'
+     inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
      inner join exclusions on con.constituent_key=exclusions.constituent_key
      inner join adv_household_b hhb on con.household_key=hhb.household_key and con.constituent_key=hhb.cons_key_sps1
      inner join adv_constituent_d sps on hhb.cons_key_sps2=sps.constituent_key

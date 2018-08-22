@@ -20,7 +20,7 @@ select con.cons_id                                                  as "Constitu
 from adv_constituent_d con
 inner join aprxref xref on con.pidm=xref.aprxref_pidm
 inner join adv_constituent_d rel on xref.aprxref_xref_pidm=rel.pidm
-inner join adv_reportvars_d rv on var_name='FY_RPT'
+inner join adv_reportvars_d rv on var_name='VOLUNTR_FY'
 left outer join last_gift on con.constituent_key=last_gift.constituent_key_credit
 where xref.aprxref_xref_code in ('SPS','CHL','SCH','WRD','PRT')
 and ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))

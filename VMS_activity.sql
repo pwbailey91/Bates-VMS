@@ -13,7 +13,7 @@ select con.cons_id       as "Constituent_Externalid",
 from adv_constituent_d con
      inner join apracty acty on con.pidm=acty.apracty_pidm
      inner join stvactc actc on acty.apracty_actc_code=actc.stvactc_code
-     inner join adv_reportvars_d rv on rv.var_name='FY_RPT'
+     inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
      inner join stvactp actp on actc.stvactc_actp_code=actp.stvactp_code
      left outer join apracyr acyr on con.pidm=acyr.apracyr_pidm and acty.apracty_actc_code=acyr.apracyr_actc_code
      left outer join last_gift on con.constituent_key=last_gift.constituent_key_credit

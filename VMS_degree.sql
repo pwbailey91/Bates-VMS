@@ -12,7 +12,7 @@ select con.cons_id                                                            as
        listagg(stv.stvmajr_desc,';') within group (order by stv.stvmajr_desc) as "Constituent_DegreeMajor"     
 from adv_constituent_d con
 inner join apradeg deg on con.pidm=deg.apradeg_pidm
-inner join adv_reportvars_d rv on rv.var_name='FY_RPT'
+inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
 left outer join apramaj maj on deg.apradeg_pidm=maj.apramaj_pidm and deg.apradeg_seq_no=maj.apramaj_adeg_seq_no
 left outer join stvmajr stv on maj.apramaj_majr_code=stv.stvmajr_code
 left outer join last_gift on con.constituent_key=last_gift.constituent_key_credit
