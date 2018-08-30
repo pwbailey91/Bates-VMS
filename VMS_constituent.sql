@@ -105,14 +105,13 @@ select con.cons_id                                                              
        case db.bf_consec_yrs_giving when 0 then db.lyr_bf_consec_yrs_giving 
                                     else db.bf_consec_yrs_giving end                              as "ConsecGivingYearsBF"
 from adv_constituent_d con
-     inner join adv_donor_codes_d pdc on con.primary_donor_code=pdc.donor_code_sd
      inner join adv_contact_info_d ci on con.contact_info_key=ci.contact_info_key
      inner join adv_donor_behavior_ps db on con.constituent_key=db.constituent_key
      inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
-     inner join exclusions on con.constituent_key=exclusions.constituent_key
      inner join adv_household_b hhb on con.household_key=hhb.household_key and con.constituent_key=hhb.cons_key_sps1
      inner join adv_constituent_d sps on hhb.cons_key_sps2=sps.constituent_key
      inner join affil on con.constituent_key=affil.constituent_key
+     left outer join exclusions on con.constituent_key=exclusions.constituent_key
      left outer join last_gift on con.constituent_key=last_gift.constituent_key_credit
      left outer join afrctyp afr on con.pidm=afr.afrctyp_constituent_pidm and afr.afrctyp_dcyr_code=rv.var_value
      left outer join aprehis apr on con.pidm=apr.APREHIS_PIDM and apr.APREHIS_PRIMARY_IND='Y' and apr.APREHIS_TO_DATE is null
