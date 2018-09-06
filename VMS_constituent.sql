@@ -74,7 +74,7 @@ select con.cons_id                                                              
                  else last_gift.gift_amount end                                                   as "Constituent_LastGiftAmount",
        case db.og_consec_yrs_giving when 0 then db.lyr_og_consec_yrs_giving 
                                     else db.og_consec_yrs_giving end                              as "ConsecutiveGivingYears",
-       db.og_donor_status                                                                         as "Constituent_DonorStatus",
+       null                                                                                       as "Constituent_DonorStatus",
        afr.afrctyp_ask_amount                                                                     as "Constituent_AskAmount",
        case when affil.trustees=1 then 'FALSE' --Trustee/Trustee spouse
             when afr.afrctyp_sol_org='TP' then 'FALSE' --Top Prospect
@@ -99,7 +99,7 @@ select con.cons_id                                                              
        apr.APREHIS_EMPL_POSITION                                                                  as "Business_JobTitle",
        coalesce(emp.last_name,apr.APREHIS_EMPR_NAME)                                              as "Business_Employer",
        atv.ATVSICC_DESC                                                                           as "Business_Industry",
-       case emp.is_mg_company when 'Y' then 'TRUE' end                                            as "Business_EmployerMatch",
+       case emp.is_mg_company when 'Y' then 'TRUE' else 'FALSE' end                               as "Business_EmployerMatch",
        replace(ci.work_city,'n/a')                                                                as "Business_AddressCity",
        replace(ci.work_state_code,'n/a')                                                          as "Business_AddressState",
        case db.bf_consec_yrs_giving when 0 then db.lyr_bf_consec_yrs_giving 
