@@ -8,7 +8,8 @@ group by cr.constituent_key_credit
 )
 select con.cons_id                                                                  as "Constituent_Externalid",
        rel.cons_id                                                                  as "Relative_ExternalId",
-       rel.first_name || ' ' || rel.last_name || ' ''' || substr(rel.scy,3,2)       as "Relative_Name",
+       rel.first_name || ' ' || rel.last_name || ' ''' || substr(rel.scy,3,2) ||
+                      case when rel.deceased_ind='Y' then ' (d)' end                as "Relative_Name",
        rel.scy                                                                      as "Relative_ClassYear",
        case xref.aprxref_xref_code when 'SPS' then 'Spouse'
                                    when 'CHL' then 'Child'
