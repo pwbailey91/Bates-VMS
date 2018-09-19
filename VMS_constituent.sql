@@ -12,7 +12,8 @@ from (select hhg.*,
       max(hhg.designation_key) over (partition by hhg.household_key,hhg.date_key_gift) as max_desg
       from adv_hh_giving_f hhg
       inner join adv_gift_description_d gd on hhg.gift_description_key=gd.gift_description_key
-      where gd.soft_credit_ind='N' and gd.anon_ind='N') hhg 
+      inner join adv_campaign_d cam on hhg.campaign_key=cam.campaign_key
+      where gd.soft_credit_ind='N' and gd.anon_ind='N' and cam.campaign_type_sd='AF') hhg 
      inner join adv_calendar_dv cal on hhg.date_key_gift=cal.date_key
      inner join adv_designation_d des on hhg.designation_key=des.designation_key
 where hhg.date_key_gift=hhg.max_date
