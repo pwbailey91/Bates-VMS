@@ -24,12 +24,18 @@ from (
 select con.cons_id                                        as "Constituent_Externalid",
        sum(pin.expected_amt-pin.install_amt_paid)         as "Pledge Balance",
        sum(pin.expected_amt)                              as "Pledge Amount",
+       sum(pin.expected_amt-pin.install_amt_paid)/
+       (count(distinct sps.constituent_key)+1)            as "Pledge Balance - Summary",
+       sum(pin.expected_amt)/
+       (count(distinct sps.constituent_key)+1)            as "Pledge Amount - Summary",
        pin.install_fiscal_year                            as "GiftSummary_Year"
 from adv_constituent_d con
      inner join adv_pledge_install_f pin on con.constituent_key=pin.constituent_key_pledger
      inner join adv_pldg_description_d pld on pin.pledge_description_key=pld.pldg_description_key
      inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
      inner join adv_campaign_d cam on pin.campaign_key=cam.campaign_key
+     inner join adv_household_b hhb on con.household_key=hhb.household_key and con.constituent_key=hhb.cons_key_sps1
+     left outer join adv_constituent_d sps on hhb.cons_key_sps2=sps.constituent_key and sps.primary_donor_code='A'
 where (con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       and pld.soft_credit_ind='N'
       and pld.anon_ind='N'
@@ -38,6 +44,6 @@ where (con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       and cam.campaign_type_sd='AF' --Only BF pledges
 group by con.cons_id, pin.install_fiscal_year
 ) unpivot 
-  ("GiftSummary_Amount" for "GiftSummary_Type" in ("Pledge Balance","Pledge Amount")
+  ("GiftSummary_Amount" for "GiftSummary_Type" in ("Pledge Balance","Pledge Amount","Pledge Balance - Summary","Pledge Amount - Summary")
 )
 order by "Constituent_Externalid", "GiftSummary_Year", "GiftSummary_Type"
