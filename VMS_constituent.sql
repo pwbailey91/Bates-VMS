@@ -39,6 +39,28 @@ from adv_constituent_d con
      inner join adv_donor_group_b dg on con.donor_group_key=dg.donor_group_key
      inner join adv_donor_codes_d dc on dg.donor_code_key=dc.donor_code_key 
 group by con.constituent_key    
+),
+nonBF_giving (con_key) as (--Find constituents with non-BF commitments this year
+select cr.constituent_key_credit
+from adv_credit_f cr
+     inner join adv_gift_description_d gd on cr.gift_description_key=gd.gift_description_key
+     inner join adv_campaign_d cam on cr.campaign_key=cam.campaign_key
+     inner join adv_reportvars_d rv on rv.VAR_NAME='VOLUNTR_FY'
+where gd.soft_credit_ind='N'
+      and gd.anon_ind='N'
+      and cam.campaign_type_sd<>'AF'
+      and cr.fiscal_year=rv.VAR_VALUE
+union
+select pin.constituent_key_pledger
+from adv_pledge_install_f pin
+     inner join adv_pldg_description_d pld on pin.pledge_description_key=pld.pldg_description_key
+     inner join adv_campaign_d cam on pin.campaign_key=cam.campaign_key
+     inner join adv_reportvars_d rv on rv.VAR_NAME='VOLUNTR_FY'
+where pld.soft_credit_ind='N'
+      and pld.anon_ind='N'
+      and pld.pledge_status_sd='A'
+      and cam.campaign_type_sd<>'AF'
+      and pin.install_fiscal_year=rv.VAR_VALUE
 )
 --Main query
 select con.cons_id                                                                                as "Constituent_Externalid",
@@ -104,7 +126,8 @@ select con.cons_id                                                              
        replace(ci.work_city,'n/a')                                                                as "Business_AddressCity",
        replace(ci.work_state_code,'n/a')                                                          as "Business_AddressState",
        case db.bf_consec_yrs_giving when 0 then db.lyr_bf_consec_yrs_giving 
-                                    else db.bf_consec_yrs_giving end                              as "ConsecGivingYearsBF"
+                                    else db.bf_consec_yrs_giving end                              as "ConsecGivingYearsBF",
+       case when nonBF_giving.con_key is not null then 'TRUE' end                                 as "Constituent_NonBFGiving"
 from adv_constituent_d con
      inner join adv_contact_info_d ci on con.contact_info_key=ci.contact_info_key
      inner join adv_donor_behavior_ps db on con.constituent_key=db.constituent_key
@@ -118,6 +141,7 @@ from adv_constituent_d con
      left outer join aprehis apr on con.pidm=apr.APREHIS_PIDM and apr.APREHIS_PRIMARY_IND='Y' and apr.APREHIS_TO_DATE is null
      left outer join atvsicc atv on apr.APREHIS_SICC_CODE=atv.ATVSICC_CODE
      left outer join adv_constituent_d emp on apr.APREHIS_EMPR_PIDM=emp.pidm
+     left outer join nonBF_giving on con.constituent_key=nonBF_giving.con_key
 where (con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       --or (con.primary_donor_code='P' and (replace(con.parent_scy,'n/a','0')>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
       --or (con.primary_donor_code='P' and exclusions.no_n25=0 and exclusions.no_solc_parent<3)) 
