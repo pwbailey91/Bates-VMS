@@ -104,6 +104,8 @@ select con.cons_id                                                              
             when con.deceased_ind='Y' then 'FALSE' --Deceased
             when exclusions.no_n25=1 then 'FALSE' --No contact (NO) / Not solicitable (N25)
             when exclusions.no_solc_parent=3 then 'FALSE' --All 3 of NS, NSE, and NP exclusions
+            when (con.scy>1975 and deg.APRADEG_DEGC_CODE is null 
+              and nvl(extract(year from last_gift.calendar_date),0)<rv.var_value-5) then 'FALSE' --Non-grads after 1975 with no gift in last 5 yrs
             else 'TRUE' end                                                                       as "Constituent_Selectable", 
        'TRUE'                                                                                     as "EditSelectableStatus",
        null                                                                                       as "Constituent_TeamManager",
@@ -126,8 +128,8 @@ select con.cons_id                                                              
        replace(ci.work_city,'n/a')                                                                as "Business_AddressCity",
        replace(ci.work_state_code,'n/a')                                                          as "Business_AddressState",
        case db.bf_consec_yrs_giving when 0 then db.lyr_bf_consec_yrs_giving 
-                                    else db.bf_consec_yrs_giving end                              as "ConsecGivingYearsBF",
-       case when nonBF_giving.con_key is not null then 'TRUE' end                                 as "Constituent_NonBFGiving"
+                                    else db.bf_consec_yrs_giving end                              as "ConsecGivingYearsBF"
+       --case when nonBF_giving.con_key is not null then 'TRUE' end                                 as "Constituent_NonBFGiving"
 from adv_constituent_d con
      inner join adv_contact_info_d ci on con.contact_info_key=ci.contact_info_key
      inner join adv_donor_behavior_ps db on con.constituent_key=db.constituent_key
@@ -141,7 +143,8 @@ from adv_constituent_d con
      left outer join aprehis apr on con.pidm=apr.APREHIS_PIDM and apr.APREHIS_PRIMARY_IND='Y' and apr.APREHIS_TO_DATE is null
      left outer join atvsicc atv on apr.APREHIS_SICC_CODE=atv.ATVSICC_CODE
      left outer join adv_constituent_d emp on apr.APREHIS_EMPR_PIDM=emp.pidm
-     left outer join nonBF_giving on con.constituent_key=nonBF_giving.con_key
+     --left outer join nonBF_giving on con.constituent_key=nonBF_giving.con_key
+     left outer join apradeg deg on con.pidm=deg.APRADEG_PIDM and deg.APRADEG_SBGI_CODE='003076' and deg.APRADEG_DEGC_CODE in ('BA','BS')
 where (con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       --or (con.primary_donor_code='P' and (replace(con.parent_scy,'n/a','0')>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
       --or (con.primary_donor_code='P' and exclusions.no_n25=0 and exclusions.no_solc_parent<3)) 
