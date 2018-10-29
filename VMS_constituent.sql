@@ -70,12 +70,7 @@ select con.cons_id                                                              
        con.last_name                                                                              as "Constituent_LastName",
        con.suffix                                                                                 as "Constituent_Suffix",
        con.pref_first_name                                                                        as "Preferred_FirstName",
-       case when con.college_last_name is null then null 
-            when con.college_first_name=con.first_name
-                 and con.college_middle_name=con.middle_name
-                 and con.college_last_name=con.last_name then null
-            else replace(con.college_first_name || ' ' || con.college_middle_name 
-                                        || ' ' || con.college_last_name,'  ',' ') end             as "Constituent_FormerName",
+       case when con.college_last_name<>con.last_name then con.college_last_name end              as "Constituent_FormerName",
        con.gender                                                                                 as "Constituent_Gender",
        con.marital_desc                                                                           as "Constituent_MaritalStatus",
        replace(con.scy,'n/a')                                                                     as "Constituent_PrefClassYear",
