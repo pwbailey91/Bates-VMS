@@ -1,5 +1,5 @@
 /*Query to generate the constituent file for the VMS.
-Pulls all alumni from past 70 class years*/
+Pulls all alumni from past 70 class years; all donor, lybunt, and sybunt2 parents; and all first year parents*/
 
 with last_gift as (--Most recent gift per household with gift date and designation
 select hhg.household_key,
@@ -142,7 +142,5 @@ from adv_constituent_d con
      --left outer join nonBF_giving on con.constituent_key=nonBF_giving.con_key
      left outer join apradeg deg on con.pidm=deg.APRADEG_PIDM and deg.APRADEG_SBGI_CODE='003076' and deg.APRADEG_DEGC_CODE in ('BA','BS')
 where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
-      or (con.primary_donor_code='P' and (con.parent_scy='2022' or db.og_donor_status in ('Donor','Pledger','Partial Pledger','Lybunt','Sybunt2'))))
-      --or (con.primary_donor_code='P' and (replace(con.parent_scy,'n/a','0')>=rv.var_value-3 or last_gift.fiscal_year >= rv.var_value-1)))
-      --or (con.primary_donor_code='P' and exclusions.no_n25=0 and exclusions.no_solc_parent<3)) 
+      or (con.primary_donor_code='P' and (con.parent_scy=to_char(rv.VAR_VALUE+3) or db.og_donor_status in ('Donor','Pledger','Partial Pledger','Lybunt','Sybunt2'))))
       and db.fiscal_year=rv.var_value
