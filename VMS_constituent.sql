@@ -1,5 +1,5 @@
 /*Query to generate the constituent file for the VMS.
-Pulls all alumni from past 70 class years; all donor, lybunt, and sybunt2 parents; and all first year parents*/
+Pulls all alumni from past 70 class years; all donor, lybunt, and sybunt2 parents; and all first year parents marked Advancement Interest*/
 
 with last_gift as (--Most recent gift per household with gift date and designation
 select hhg.household_key,
@@ -39,6 +39,17 @@ from adv_constituent_d con
      inner join adv_donor_group_b dg on con.donor_group_key=dg.donor_group_key
      inner join adv_donor_codes_d dc on dg.donor_code_key=dc.donor_code_key 
 group by con.constituent_key    
+),
+first_yr_par as (--Finds parents of first year students who are coded Advancement Interest
+select par.constituent_key
+from aprpros
+     inner join adv_constituent_d stu on aprpros_pidm=stu.pidm
+     inner join adv_reportvars_d rv on rv.VAR_NAME='VOLUNTR_FY'
+     inner join aprxref on aprpros_pidm=aprxref_pidm and aprxref_xref_code='PAR'
+     inner join adv_constituent_d par on aprxref_xref_pidm=par.pidm
+where aprpros_prtp_code='ADIN'
+      and aprpros_prcd_code='FAN'
+      and par.parent_scy=to_char(rv.VAR_VALUE+3)
 ),
 nonBF_giving (con_key) as (--Find constituents with non-BF commitments this year
 select cr.constituent_key_credit
@@ -139,8 +150,9 @@ from adv_constituent_d con
      left outer join aprehis apr on con.pidm=apr.APREHIS_PIDM and apr.APREHIS_PRIMARY_IND='Y' and apr.APREHIS_TO_DATE is null
      left outer join atvsicc atv on apr.APREHIS_SICC_CODE=atv.ATVSICC_CODE
      left outer join adv_constituent_d emp on apr.APREHIS_EMPR_PIDM=emp.pidm
+     left outer join first_yr_par fyp on con.constituent_key=fyp.constituent_key
      --left outer join nonBF_giving on con.constituent_key=nonBF_giving.con_key
      left outer join apradeg deg on con.pidm=deg.APRADEG_PIDM and deg.APRADEG_SBGI_CODE='003076' and deg.APRADEG_DEGC_CODE in ('BA','BS')
 where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
-      or (con.primary_donor_code='P' and (con.parent_scy=to_char(rv.VAR_VALUE+3) or db.og_donor_status in ('Donor','Pledger','Partial Pledger','Lybunt','Sybunt2'))))
+      or (con.primary_donor_code='P' and (fyp.constituent_key is not null or db.og_donor_status in ('Donor','Pledger','Partial Pledger','Lybunt','Sybunt2'))))
       and db.fiscal_year=rv.var_value
