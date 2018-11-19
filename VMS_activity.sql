@@ -1,6 +1,6 @@
 /*Query to generate the activity file for the VMS.*/
 with first_yr_par as (
-select par.constituent_key
+select distinct par.constituent_key
 from aprpros
      inner join adv_constituent_d stu on aprpros_pidm=stu.pidm
      inner join adv_reportvars_d rv on rv.VAR_NAME='VOLUNTR_FY'

@@ -41,7 +41,7 @@ from adv_constituent_d con
 group by con.constituent_key    
 ),
 first_yr_par as (--Finds parents of first year students who are coded Advancement Interest
-select par.constituent_key
+select distinct par.constituent_key
 from aprpros
      inner join adv_constituent_d stu on aprpros_pidm=stu.pidm
      inner join adv_reportvars_d rv on rv.VAR_NAME='VOLUNTR_FY'
