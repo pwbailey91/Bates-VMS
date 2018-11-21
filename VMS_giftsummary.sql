@@ -82,4 +82,4 @@ group by con.cons_id, cal.fiscal_year
 ) unpivot 
   ("GiftSummary_Amount" for "GiftSummary_Type" in ("Pledge Balance","Pledge Amount","Pledge Balance - Summary","Pledge Amount - Summary")
 )
-order by "Constituent_Externalid", "GiftSummary_Year", "GiftSummary_Type"
+
