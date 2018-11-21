@@ -32,7 +32,23 @@ from population con
      inner join adv_calendar_dv cal on cam.date_key_est=cal.date_key
 where gd.soft_credit_ind='N'
       and gd.anon_ind='N'
-      and cal.fiscal_year between rv.var_value-5 and rv.var_value
+      and cal.fiscal_year between rv.var_value-4 and rv.var_value
+      and cam.campaign_type_sd='AF' --Only BF gifts
+group by con.cons_id, cal.fiscal_year
+union all
+select con.cons_id                                        as "Constituent_Externalid",
+       sum(cr.credit_amount)                              as "GiftSummary_Amount",
+       'Cash In'                                          as "GiftSummary_Type",
+       cal.fiscal_year                                    as "GiftSummary_Year"
+from population con
+     inner join adv_hh_giving_f cr on con.household_key=cr.household_key
+     inner join adv_gift_description_d gd on cr.gift_description_key=gd.gift_description_key
+     inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
+     inner join adv_campaign_d cam on cr.campaign_key=cam.campaign_key
+     inner join adv_calendar_dv cal on cam.date_key_est=cal.date_key
+where gd.soft_credit_ind='N'
+      and gd.anon_ind='N'
+      and cal.fiscal_year between rv.var_value-4 and rv.var_value
       and cam.campaign_type_sd='AF' --Only BF gifts
 group by con.cons_id, cal.fiscal_year
 union all

@@ -40,5 +40,5 @@ from population con
      inner join adv_reportvars_d rv on rv.var_name='VOLUNTR_FY'
 where gd.soft_credit_ind='N'
       and gd.anon_ind='N'
-      and cal2.fiscal_year between rv.var_value-5 and rv.var_value
+      and cal2.fiscal_year between rv.var_value-4 and rv.var_value
       and cam.campaign_type_sd='AF' --Only BF gifts
