@@ -135,7 +135,8 @@ select con.cons_id                                                              
        replace(ci.work_city,'n/a')                                                                as "Business_AddressCity",
        replace(ci.work_state_code,'n/a')                                                          as "Business_AddressState",
        case db.bf_consec_yrs_giving when 0 then db.lyr_bf_consec_yrs_giving 
-                                    else db.bf_consec_yrs_giving end                              as "ConsecGivingYearsBF"
+                                    else db.bf_consec_yrs_giving end                              as "ConsecGivingYearsBF",
+       replace(con.parent_scy,'n/a')                                                              as "Parent_ClassYear"
        --case when nonBF_giving.con_key is not null then 'TRUE' end                                 as "Constituent_NonBFGiving"
 from adv_constituent_d con
      inner join adv_contact_info_d ci on con.contact_info_key=ci.contact_info_key
