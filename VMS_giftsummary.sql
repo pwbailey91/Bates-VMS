@@ -75,7 +75,7 @@ from population con
      left outer join adv_constituent_d sps on hhb.cons_key_sps2=sps.constituent_key and sps.primary_donor_code='A'
 where pld.soft_credit_ind='N'
       and pld.anon_ind='N'
-      and pld.pledge_status_sd='A'
+      and pld.pledge_status_sd in ('A','P')
       and cal.fiscal_year=rv.var_value
       and cam.campaign_type_sd='AF' --Only BF pledges
 group by con.cons_id, cal.fiscal_year
