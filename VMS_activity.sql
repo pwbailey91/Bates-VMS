@@ -31,4 +31,4 @@ from population con
      inner join stvactp actp on actc.stvactc_actp_code=actp.stvactp_code
      left outer join apracyr acyr on con.pidm=acyr.apracyr_pidm and acty.apracty_actc_code=acyr.apracyr_actc_code
 where actp.STVACTP_CODE in ('SOORG','SPRTS','ALUMN','ATHLE','PARNT')
-      and actc.STVACTC_CODE <> 'DTYP'
+      and actc.STVACTC_CODE not in ('DTYP','1276')
