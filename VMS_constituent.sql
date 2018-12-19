@@ -22,13 +22,13 @@ group by hhg.household_key,cal.calendar_date,cal.fiscal_year,des.designation_ld
 ), 
 exclusions as (--Pulls all exclusion codes into single row per constituent
 select con.constituent_key,
-       max(case when exc.exclusion_code_sd in ('NO','N25','VMS') then 1 else 0 end) as no_n25,
+       max(case when exc.exclusion_code_sd in ('NO','N25','VMS','MA') then 1 else 0 end) as no_n25,
        sum(case when exc.exclusion_code_sd in ('NS','NSE','NP') then 1 else 0 end) as no_solc_parent,
        listagg(case when exc.exclusion_code_sd='N25' then null else exc.exclusion_code_ld end,';') within group (order by exc.exclusion_code_key) as exclusion_string
 from adv_constituent_d con
      inner join adv_exclusion_group_b exg on con.exclusion_group_key=exg.exclusion_group_key
      inner join adv_exclusion_codes_d exc on exg.exclusion_code_key=exc.exclusion_code_key
-where exc.exclusion_code_sd in ('DM','DME','NS','NSE','NP','NT','NAS','NBA','NO','NPA','NPM','REF','UNS','N25','VMS')
+where exc.exclusion_code_sd in ('DM','DME','NS','NSE','NP','NT','NAS','NBA','NO','NPA','NPM','REF','UNS','N25','VMS','MA')
 group by con.constituent_key
 ),
 affil as (--Pulls constituent affiliations into single row
