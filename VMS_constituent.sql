@@ -88,6 +88,7 @@ select con.cons_id                                                              
        affil.affiliations                                                                         as "Constituent_Affiliation",
        replace(ci.pref_email,'n/a')                                                               as "Constituent_Email",
        replace(ci.home_phone,'n/a')                                                               as "Constituent_HomePhone",
+       replace(ci.cell_primary,'n/a')                                                             as "Constituent_CellPhone",
        replace(ci.pref_mail_street1,'n/a')                                                        as "Constituent_AddressStreet1",
        replace(ci.pref_mail_street2,'n/a')                                                        as "Constituent_AddressStreet2",
        replace(ci.pref_mail_street3,'n/a')                                                        as "Constituent_AddressStreet3",
@@ -136,7 +137,9 @@ select con.cons_id                                                              
        replace(ci.work_state_code,'n/a')                                                          as "Business_AddressState",
        case db.bf_consec_yrs_giving when 0 then db.lyr_bf_consec_yrs_giving 
                                     else db.bf_consec_yrs_giving end                              as "ConsecGivingYearsBF",
-       replace(con.parent_scy,'n/a')                                                              as "Parent_ClassYear"
+       replace(con.parent_scy,'n/a')                                                              as "Parent_ClassYear",
+       case sch.aprmail_mail_code when 'SIO' then 'Schuler Opportunity'
+                                  when 'SIB' then 'Schuler Base' end                              as "SchulerStatus"
        --case when nonBF_giving.con_key is not null then 'TRUE' end                                 as "Constituent_NonBFGiving"
 from adv_constituent_d con
      inner join adv_contact_info_d ci on con.contact_info_key=ci.contact_info_key
@@ -154,6 +157,7 @@ from adv_constituent_d con
      left outer join first_yr_par fyp on con.constituent_key=fyp.constituent_key
      --left outer join nonBF_giving on con.constituent_key=nonBF_giving.con_key
      left outer join apradeg deg on con.pidm=deg.APRADEG_PIDM and deg.APRADEG_SBGI_CODE='003076' and deg.APRADEG_DEGC_CODE in ('BA','BS')
+     left outer join aprmail sch on con.pidm=sch.aprmail_pidm and sch.APRMAIL_MAIL_CODE in ('SIO','SIB')
 where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       or (con.primary_donor_code='P' and (fyp.constituent_key is not null or db.og_donor_status in ('Donor','Pledger','Partial Pledger','Lybunt','Sybunt2'))))
       and db.fiscal_year=rv.var_value
