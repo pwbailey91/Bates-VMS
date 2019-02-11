@@ -119,13 +119,14 @@ select con.cons_id                                                              
        null                                                                                       as "Constituent_TeamManager",
        case con.deceased_ind when 'Y' then 'TRUE' else 'FALSE' end                                as "Constituent_Deceased",
        replace(exclusions.exclusion_string,'none')                                                as "Constituent_Restrictions",
-       case afr.afrctyp_sol_org when 'TP' then 'Top Prospects'
+       case when con.scy between '2002' and '2017' then 'Schuler'
+            else (case afr.afrctyp_sol_org when 'TP' then 'Top Prospects'
                                 when 'PA' then 'President''s Associates'  
                                 when 'MDS' then 'Mount David Society Members'
                                 when 'MDSP' then 'Mount David Society Prospects' 
                                 when 'BFP' then 'Bates Fund Pipeline'
                                 when 'GG' then 'General Giving'
-                                when 'PAR' then 'Parents' end                                     as "Constituent_Segments",
+                                when 'PAR' then 'Parents' end) end                                as "Constituent_Segments",
        replace(sps.cons_id,'n/a')                                                                 as "Spouse_Externalid",
        replace(hhb.spouse_name,'n/a')                                                             as "Spouse_Name",
        replace(sps.scy,'n/a')                                                                     as "Spouse_ClassYear",
