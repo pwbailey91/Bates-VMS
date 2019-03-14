@@ -72,6 +72,21 @@ where pld.soft_credit_ind='N'
       and pld.pledge_status_sd='A'
       and cam.campaign_type_sd<>'AF'
       and pin.install_fiscal_year=rv.VAR_VALUE
+),
+staff_solicited as (--Find constituents with a staff solicitor
+select con.constituent_key
+from adv_assignments_f asn
+     inner join adv_constituent_d con on asn.constituent_key_prospect=con.constituent_key
+     inner join adv_staff_d stf on asn.staff_key=stf.staff_key
+     inner join adv_constituent_d sol on stf.constituent_key_staff=sol.constituent_key
+     inner join adv_reportvars_d rv on rv.VAR_NAME='VOLUNTR_FY'
+where asn.wh_current_row='Y'
+      and asn.solicitor_code='STAF'
+      and stf.wh_current_row='Y'
+      and not (sol.cons_id='000098135' and con.scy='2010') -- Evan
+      and not (sol.cons_id='000354053' and con.scy='2007') -- Meghan
+      and not (sol.cons_id='000362399' and con.scy='2007') -- Cary
+      and not (sol.cons_id='000466745' and con.scy between rv.VAR_VALUE-10 and rv.VAR_VALUE-1) -- Nina
 )
 --Main query
 select con.cons_id                                                                                as "Constituent_Externalid",
@@ -114,6 +129,7 @@ select con.cons_id                                                              
             when (con.primary_donor_code='A' and con.scy>'1975' and deg.APRADEG_DEGC_CODE is null 
               and nvl(extract(year from last_gift.calendar_date),0)<rv.var_value-5) then 'FALSE' --Non-grads after 1975 with no gift in last 5 yrs
             when (con.primary_donor_code='P' and afr.AFRCTYP_ASK_AMOUNT>=5000) then 'FALSE' --Parents with ask amount over 5000
+            when ss.constituent_key is not null then 'FALSE' --Has a staff solicitor
             else 'TRUE' end                                                                       as "Constituent_Selectable", 
        'TRUE'                                                                                     as "EditSelectableStatus",
        null                                                                                       as "Constituent_TeamManager",
@@ -159,6 +175,7 @@ from adv_constituent_d con
      --left outer join nonBF_giving on con.constituent_key=nonBF_giving.con_key
      left outer join apradeg deg on con.pidm=deg.APRADEG_PIDM and deg.APRADEG_SBGI_CODE='003076' and deg.APRADEG_DEGC_CODE in ('BA','BS')
      left outer join aprmail sch on con.pidm=sch.aprmail_pidm and sch.APRMAIL_MAIL_CODE in ('SIO','SIB')
+     left outer join staff_solicited ss on con.constituent_key=ss.constituent_key
 where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
       or (con.primary_donor_code='P' and (fyp.constituent_key is not null or db.og_donor_status in ('Donor','Pledger','Partial Pledger','Lybunt','Sybunt2'))))
       and db.fiscal_year=rv.var_value
