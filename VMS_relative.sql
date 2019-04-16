@@ -15,10 +15,10 @@ select /*+materialize*/ con.constituent_key, con.cons_id, con.pidm
 from adv_constituent_d con
      inner join adv_donor_behavior_ps db on con.constituent_key=db.constituent_key
      inner join adv_reportvars_d rv on rv.VAR_NAME='VOLUNTR_FY'
-     left outer join first_yr_par fyp on con.constituent_key=fyp.constituent_key
+     --left outer join first_yr_par fyp on con.constituent_key=fyp.constituent_key
 where db.fiscal_year=rv.var_value
       and ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
-      or (con.primary_donor_code='P' and (fyp.constituent_key is not null or db.og_donor_status in ('Donor','Pledger','Partial Pledger','Lybunt','Sybunt2'))))
+      or (con.primary_donor_code='P' and (con.parent_scy>=rv.var_value or db.og_donor_status in ('Donor','Pledger','Partial Pledger','Lybunt','Sybunt2'))))
 )   
 select con.cons_id                                                  as "Constituent_Externalid",
        rel.cons_id                                                  as "Relative_ExternalId",
