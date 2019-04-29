@@ -87,6 +87,28 @@ where asn.wh_current_row='Y'
       and not (sol.cons_id='000354053' and con.scy='2007') -- Meghan
       and not (sol.cons_id='000362399' and con.scy='2007') -- Cary
       and not (sol.cons_id='000466745' and con.scy between rv.VAR_VALUE-10 and rv.VAR_VALUE-1) -- Nina
+),
+student_acts as (
+select apracty_pidm as pidm,
+       listagg(actc.stvactc_desc,', ') within group (order by actc.stvactc_code) as activities
+from apracty 
+     inner join stvactc actc on apracty_actc_code=actc.stvactc_code
+     inner join stvactp actp on actc.stvactc_actp_code=actp.stvactp_code
+where actp.STVACTP_CODE in ('SOORG','SPRTS','ATHLE')
+      and actc.STVACTC_CODE not in ('DTYP','1276','1259')
+group by apracty_pidm
+),
+student_info as (
+select aprxref_pidm as par_pidm,
+       listagg(chl.pref_first_name ||' '|| chl.last_name,'; ') within group (order by chl.pidm) as student_names,
+       listagg(case chl.gender when 'M' then 'Male' when 'F' then 'Female' else chl.gender end,'; ') within group (order by chl.pidm) as student_genders, 
+       listagg(sa.activities,'; ') within group (order by chl.pidm) as student_activities     
+from aprxref
+     inner join adv_constituent_d chl on aprxref_xref_pidm=chl.pidm
+     left outer join student_acts sa on chl.pidm=sa.pidm
+where chl.primary_donor_code='S'
+      and aprxref_xref_code='CHL'
+group by aprxref_pidm
 )
 --Main query
 select con.cons_id                                                                                as "Constituent_Externalid",
@@ -157,7 +179,10 @@ select con.cons_id                                                              
        replace(con.parent_scy,'n/a')                                                              as "Parent_ClassYear",
        case sch.aprmail_mail_code when 'SIO' then 'Schuler Opportunity'
                                   when 'SIB' then 'Schuler Base' end                              as "SchulerStatus",
-       case when nonBF_giving.con_key is not null then 'TRUE' else 'FALSE' end                    as "NonBFGiving"
+       case when nonBF_giving.con_key is not null then 'TRUE' else 'FALSE' end                    as "NonBFGiving",
+       stu.student_names                                                                          as "Student_Name",
+       stu.student_genders                                                                        as "Student_Gender",
+       stu.student_activities                                                                     as "Student_Activities"
 from adv_constituent_d con
      inner join adv_contact_info_d ci on con.contact_info_key=ci.contact_info_key
      inner join adv_donor_behavior_ps db on con.constituent_key=db.constituent_key
@@ -176,6 +201,7 @@ from adv_constituent_d con
      left outer join apradeg deg on con.pidm=deg.APRADEG_PIDM and deg.APRADEG_SBGI_CODE='003076' and deg.APRADEG_DEGC_CODE in ('BA','BS')
      left outer join aprmail sch on con.pidm=sch.aprmail_pidm and sch.APRMAIL_MAIL_CODE in ('SIO','SIB')
      left outer join staff_solicited ss on con.constituent_key=ss.constituent_key
+     left outer join student_info stu on con.pidm=stu.par_pidm
 where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
-      or (con.primary_donor_code='P' and (con.parent_scy>=rv.var_value or db.og_donor_status in ('Donor','Pledger','Partial Pledger','Lybunt','Sybunt2'))))
+      or (con.primary_donor_code='P' and (con.parent_scy>=rv.var_value or db.og_donor_status in ('Donor','Pledger','Partial_Pledger','Lybunt','Sybunt2'))))
       and db.fiscal_year=rv.var_value

@@ -18,7 +18,7 @@ from adv_constituent_d con
      --left outer join first_yr_par fyp on con.constituent_key=fyp.constituent_key
 where db.fiscal_year=rv.var_value
       and ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
-      or (con.primary_donor_code='P' and (con.parent_scy>=rv.var_value or db.og_donor_status in ('Donor','Pledger','Partial Pledger','Lybunt','Sybunt2'))))
+      or (con.primary_donor_code='P' and (con.parent_scy>=rv.var_value or db.og_donor_status in ('Donor','Pledger','Partial_Pledger','Lybunt','Sybunt2'))))
 )   
 select con.cons_id       as "Constituent_Externalid",
        actc.stvactc_desc as "Activity_Name",
