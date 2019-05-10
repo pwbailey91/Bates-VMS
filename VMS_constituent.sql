@@ -99,16 +99,16 @@ where actp.STVACTP_CODE in ('SOORG','SPRTS','ATHLE')
 group by apracty_pidm
 ),
 student_info as (
-select aprxref_pidm as par_pidm,
+select aprxref_xref_pidm as par_pidm,
        listagg(chl.pref_first_name ||' '|| chl.last_name,'; ') within group (order by chl.pidm) as student_names,
        listagg(case chl.gender when 'M' then 'Male' when 'F' then 'Female' else chl.gender end,'; ') within group (order by chl.pidm) as student_genders, 
        listagg(sa.activities,'; ') within group (order by chl.pidm) as student_activities     
 from aprxref
-     inner join adv_constituent_d chl on aprxref_xref_pidm=chl.pidm
+     inner join adv_constituent_d chl on aprxref_pidm=chl.pidm
      left outer join student_acts sa on chl.pidm=sa.pidm
 where chl.primary_donor_code='S'
-      and aprxref_xref_code='CHL'
-group by aprxref_pidm
+      and aprxref_xref_code='PAR'
+group by aprxref_xref_pidm
 )
 --Main query
 select con.cons_id                                                                                as "Constituent_Externalid",
@@ -203,5 +203,5 @@ from adv_constituent_d con
      left outer join staff_solicited ss on con.constituent_key=ss.constituent_key
      left outer join student_info stu on con.pidm=stu.par_pidm
 where ((con.primary_donor_code='A' and con.scy>=to_char(rv.var_value-70))
-      or (con.primary_donor_code='P' and (con.parent_scy>=rv.var_value or db.og_donor_status in ('Donor','Pledger','Partial_Pledger','Lybunt','Sybunt2'))))
+      or (con.primary_donor_code='P' and (replace(con.parent_scy,'n/a')>=rv.var_value or db.og_donor_status in ('Donor','Pledger','Partial_Pledger','Lybunt','Sybunt2'))))
       and db.fiscal_year=rv.var_value
